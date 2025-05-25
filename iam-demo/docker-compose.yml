@@ -1,0 +1,25 @@
+
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    command: start-dev
+    ports:
+      - "8080:8080"
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    volumes:
+      - ./keycloak/create-realm.sh:/opt/keycloak/create-realm.sh
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  flask-app:
+    build: ./flask-app
+    ports:
+      - "5000:5000"
+    depends_on:
+      - keycloak
+    
